@@ -7,7 +7,7 @@ function RequestsBranch(props) {
   const [reqs,setReqs] = useState([]);
   const id=props.match.params.id;
   useEffect(()=>{
-    axios.post('http://localhost:5000/branch/reqs',{
+    axios.post('http://localhost:5000/branch/reqs/pending',{
       token:localStorage.getItem('token'),
       id
     }).then(res=>{     

@@ -58,6 +58,30 @@ exports.request_list=(req,res)=>{
     })
 }
 
+exports.request_list_pending=(req,res)=>{
+    var role = req.user.role;
+    var branchId;
+    if(role === "subadmin")
+         branchId=req.user.id;
+    else if(role === "admin")
+        branchId=req.body.id;
+    var status = "pending";
+    const q="SELECT * FROM leave_request JOIN employee ON employee.emp_id = leave_request.emp_id JOIN department ON employee.dept_code=department.code WHERE employee.branch_id=? AND leave_request.status=? ORDER BY leave_request.from_date DESC";
+    db.query(q,[branchId,status]).then(result=>{
+        result=JSON.parse(JSON.stringify(result[0]));
+        res.send({
+            error:false,
+            result
+        });
+    }).catch(err=>{
+        console.log(err.sqlMessage);
+        res.send({
+            error:true,
+            message:err.sqlMessage
+        });
+    })
+}
+
 exports.req_id=(req,res)=>{
     var reqId=req.body.reqId;
     const q="SELECT * FROM leave_request JOIN employee ON employee.emp_id = leave_request.emp_id JOIN department ON employee.dept_code=department.code WHERE leave_request.leave_id=?";

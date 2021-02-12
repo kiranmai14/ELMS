@@ -1,54 +1,51 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import moment from 'moment';
 import ReactPaginate from 'react-paginate';
-import axios from 'axios';
 import '../styles/pagination.css';
-
-
-function EmployeeRequests(props) {
-  var empId=props.match.params.emp_id;
+function OldRequestsBranch(props) {
   const [loading,setLoading] = useState(true);
-  const [reqs,setReqs] = useState([]);
-  const [error,setError]= useState('');
   const [offset, setOffset] = useState(0);
   const [data, setData] = useState([]);
   const [perPage] = useState(3);
   const [pageCount, setPageCount] = useState(0)
+  const [reqs,setReqs] = useState([]);
+  const id=props.match.params.id;
 
-  useEffect(()=>{
-    axios.post('http://localhost:5000/branch/empReqs',{
-        token:localStorage.getItem('token'),
-        empId
-    }).then(res=>{
-            var d=res.data.result;
-            setReqs(res.data.result);
-            const slice = d.slice(offset, offset + perPage)
-            setData([...slice])
-            setPageCount(Math.ceil(d.length / perPage))  
-            setLoading(false);
-        }).catch(err=>{
-          console.log(err);
-          setError('Error Occured');
-          setLoading(false);
-        })
-        // eslint-disable-next-line
-  },[])
+  useEffect(() => {
+    axios.post('http://localhost:5000/branch/reqs',{
+      token:localStorage.getItem('token'),
+      id
+    }).then(res=>{     
+      var d=res.data.result;
+      setReqs(res.data.result);
+      const slice = d.slice(offset, offset + perPage)
+      setData([...slice])
+      setPageCount(Math.ceil(d.length / perPage))     
+      setLoading(false);
+    }).catch(err=>{
+      console.log(err);
+      setLoading(false);
+    })
+   // eslint-disable-next-line
+  }, [])
 
-  const getData = () => {
+const getData = () => {
     const slice = reqs.slice(offset, offset + perPage)
     setData([...slice])
 }
+
+
+
+  const handlePageClick = (e) => {
+    const selectedPage = e.selected;
+    setOffset(selectedPage + 1)
+};
 
 useEffect(() => {
   getData()
  // eslint-disable-next-line
 }, [offset])
-
-const handlePageClick = (e) => {
-  const selectedPage = e.selected;
-  setOffset(selectedPage + 1)
-};
-
 
   if(loading)
   {
@@ -57,14 +54,15 @@ const handlePageClick = (e) => {
   else
   return (
     <div>
-      <div>
-        {error&&<p>{error}</p>}
-      </div>
-      <div>
       
       {data&&data.map((req)=><div>
         <div>
             ReqID:{req.leave_id}
+        </div>
+        <div>
+            EmpID:{req.emp_id}
+            Dept Code:{req.dept_code}
+            Name:{req.first_name} {req.last_name}
         </div>
         <div>
             From:{moment(req.from_date).format('MMMM Do YYYY')}
@@ -95,9 +93,9 @@ const handlePageClick = (e) => {
                     subContainerClassName={"pages pagination"}
                     activeClassName={"active"}/>
     </div>
-    </div>
   );
-  
+
 }
  
-export default EmployeeRequests;
+ 
+export default OldRequestsBranch;
